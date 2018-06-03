@@ -1,5 +1,8 @@
-% % load and explore data
+% % load and preprocess data
 currentFolder = pwd;
+resize_file();
+split_test();
+
 dataPath = fullfile(currentFolder,'data','Altered');
 JointData =  imageDatastore(dataPath, 'IncludeSubfolders', true, 'LabelSource','foldernames');
 testDataPath = fullfile(currentFolder,'data','test');
@@ -42,13 +45,14 @@ options =  trainingOptions('sgdm', ...
     'Verbose', false, ...
     'Plots', 'training-progress');
 
-% % start training with prepared training data
-% net = trainNetwork(Training, layers, options);
+% start training with prepared training data
+net = trainNetwork(Training, layers, options);
 % test model on test data
-% test_model(net, Test);
+test_model(net, Test);
 
-predict = test_one(net, 'data/test/PASS/1333420170808091047120L2.bmp');
-disp(predict);
+% %  example for test_one
+% predict = test_one(net, 'data/test/PASS/1333420170808091047120L2.bmp');
+% disp(predict);
 
 function accuracy = test_model(net, Test)
 % % test model
