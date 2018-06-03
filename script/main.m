@@ -2,12 +2,14 @@
 currentFolder = pwd;
 dataPath = fullfile(currentFolder,'data','Altered');
 JointData =  imageDatastore(dataPath, 'IncludeSubfolders', true, 'LabelSource','foldernames');
+testDataPath = fullfile(currentFolder,'data','test');
+Test  = imageDatastore(testDataPath, 'IncludeSubfolders', true, 'LabelSource','foldernames');
 
 % % NG:8244 PASS:9016 
 labelCount = countEachLabel(JointData);
-
-% % split datastore to 70/30
-[Training, Validation] = splitEachLabel(JointData,0.7);
+testLabelCount = countEachLabel(Test);
+% % split datastore to 85/15
+[Training, Validation] = splitEachLabel(JointData,0.85);
 
 % % Define Network structure
 layers =  [
@@ -41,10 +43,24 @@ options =  trainingOptions('sgdm', ...
     'Plots', 'training-progress');
 
 % % start training with prepared training data
-net = trainNetwork(Training, layers, options);
+% net = trainNetwork(Training, layers, options);
+% test model on test data
+% test_model(net, Test);
 
+predict = test_one(net, 'data/test/PASS/1333420170808091047120L2.bmp');
+disp(predict);
+
+function accuracy = test_model(net, Test)
 % % test model
-predict = classify(net, Validation);
-answer  = Validation.Labels;
-accuracy = sum(predict==answer)/numel(answer) % numel: # array elements
+    predict = classify(net, Test);
+    answer  = Test.Labels;
+    accuracy = sum(predict==answer)/numel(answer) % numel: # array elements
+end
 
+function predict = test_one(net, img)
+% predict one image
+% img = img path and name ex: 'data/test/PASS/1333420170808091047120L2.bmp'
+    currentFolder = pwd;
+    img = imageDatastore(fullfile(currentFolder,img));
+    predict = classify(net, img);
+end
